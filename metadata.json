@@ -1,0 +1,5 @@
+{
+  "name": "FIPE Tabela & AI",
+  "description": "Consulte os preços de veículos na tabela FIPE e gere uma imagem do modelo consultado utilizando IA. Suporta carros e motos.",
+  "requestFramePermissions": []
+}

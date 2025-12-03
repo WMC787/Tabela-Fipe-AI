@@ -1,0 +1,222 @@
+<main class="container mx-auto p-4 sm:p-6 md:p-8">
+  <div class="bg-white rounded-2xl shadow-xl max-w-5xl mx-auto overflow-hidden">
+    <div class="p-6 sm:p-8">
+      <!-- HEADER -->
+      <header class="text-center border-b border-slate-200 pb-6">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-purple-700 tracking-tight">
+          Consulta Tabela FIPE
+        </h1>
+        <p class="mt-2 text-slate-500 max-w-2xl mx-auto">
+          Selecione o tipo de veículo, marca, modelo e ano para verificar o valor.
+        </p>
+      </header>
+
+      <!-- SELECTION FORM -->
+      <div class="mt-8 space-y-6">
+        <!-- Vehicle Type Switcher -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Tipo de Veículo</label>
+          <div class="grid grid-cols-2 gap-4">
+            <button
+              (click)="handleVehicleTypeChange('cars')"
+              [class]="vehicleType() === 'cars' ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+              class="w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+              Carros
+            </button>
+            <button
+              (click)="handleVehicleTypeChange('motorcycles')"
+              [class]="vehicleType() === 'motorcycles' ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+              class="w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+              Motos
+            </button>
+          </div>
+        </div>
+
+        <!-- Dropdowns -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Brand Dropdown -->
+          <div class="space-y-2 relative" id="brand-dropdown-wrapper">
+            <label for="brand-input" class="block text-sm font-medium text-slate-700">Marca</label>
+            <input type="text" id="brand-input"
+                   (input)="onBrandSearch($event)"
+                   (focus)="isBrandDropdownOpen.set(true)"
+                   [value]="brandSearchTerm()"
+                   placeholder="Buscar e selecionar..."
+                   class="block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md disabled:bg-slate-200 disabled:cursor-not-allowed"
+                   [disabled]="brands().length === 0 || status() === 'loading'">
+            @if (isBrandDropdownOpen()) {
+              <ul class="absolute z-20 w-full bg-white border border-slate-300 rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto">
+                @for(brand of filteredBrands(); track brand.code) {
+                  <li (click)="selectBrand(brand)" class="px-3 py-2 cursor-pointer hover:bg-purple-100 text-slate-800 text-sm">
+                    {{ brand.name }}
+                  </li>
+                }
+                @if (filteredBrands().length === 0) {
+                  <li class="px-3 py-2 text-slate-500 text-sm">Nenhuma marca encontrada</li>
+                }
+              </ul>
+            }
+          </div>
+          <!-- Model Dropdown -->
+          <div class="space-y-2 relative" id="model-dropdown-wrapper">
+            <label for="model-input" class="block text-sm font-medium text-slate-700">Modelo</label>
+            <input type="text" id="model-input"
+                   (input)="onModelSearch($event)"
+                   (focus)="isModelDropdownOpen.set(true)"
+                   [value]="modelSearchTerm()"
+                   placeholder="Buscar e selecionar..."
+                   class="block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md disabled:bg-slate-200 disabled:cursor-not-allowed"
+                   [disabled]="models().length === 0 || status() === 'loading' || !selectedBrandCode()">
+            @if (isModelDropdownOpen()) {
+              <ul class="absolute z-20 w-full bg-white border border-slate-300 rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto">
+                @for(model of filteredModels(); track model.code) {
+                  <li (click)="selectModel(model)" class="px-3 py-2 cursor-pointer hover:bg-purple-100 text-slate-800 text-sm">
+                    {{ model.name }}
+                  </li>
+                }
+                @if (filteredModels().length === 0) {
+                  <li class="px-3 py-2 text-slate-500 text-sm">Nenhum modelo encontrado</li>
+                }
+              </ul>
+            }
+          </div>
+          <!-- Year Dropdown -->
+          <div class="space-y-2 relative" id="year-dropdown-wrapper">
+            <label for="year-input" class="block text-sm font-medium text-slate-700">Ano</label>
+            <input type="text" id="year-input"
+                   (input)="onYearSearch($event)"
+                   (focus)="isYearDropdownOpen.set(true)"
+                   [value]="yearSearchTerm()"
+                   placeholder="Buscar e selecionar..."
+                   class="block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md disabled:bg-slate-200 disabled:cursor-not-allowed"
+                   [disabled]="years().length === 0 || status() === 'loading' || !selectedModelCode()">
+            @if (isYearDropdownOpen()) {
+              <ul class="absolute z-20 w-full bg-white border border-slate-300 rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto">
+                @for(year of filteredYears(); track year.code) {
+                  <li (click)="selectYear(year)" class="px-3 py-2 cursor-pointer hover:bg-purple-100 text-slate-800 text-sm">
+                    {{ year.name }}
+                  </li>
+                }
+                @if (filteredYears().length === 0) {
+                  <li class="px-3 py-2 text-slate-500 text-sm">Nenhum ano encontrado</li>
+                }
+              </ul>
+            }
+          </div>
+        </div>
+        
+        <!-- Action Button -->
+        <div class="pt-2">
+           <button (click)="getVehicleInfo()" [disabled]="!isFormComplete() || status() === 'loading'" class="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors disabled:bg-purple-300 disabled:cursor-not-allowed flex items-center justify-center">
+            @if (status() === 'loading') {
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>{{ loadingMessage() }}</span>
+            } @else {
+              <span>Consultar Valor</span>
+            }
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RESULTS DISPLAY -->
+    <div class="bg-slate-50 min-h-[400px] flex items-center justify-center p-6 sm:p-8">
+      @switch (status()) {
+        @case ('idle') {
+          <div class="text-center text-slate-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            <p class="mt-4 text-lg">Aguardando sua seleção para iniciar a consulta.</p>
+          </div>
+        }
+        @case ('error') {
+          <div class="text-center text-red-600 bg-red-50 p-6 rounded-lg">
+             <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="font-semibold mt-2">Oops! Algo deu errado.</p>
+            <p class="font-mono bg-red-100 text-red-800 p-2 rounded mt-2 text-sm">{{ errorMessage() }}</p>
+          </div>
+        }
+        @case ('success') {
+          <div class="w-full">
+            @if (vehicleDetails(); as details) {
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full animate-fade-in">
+                <!-- Image Column -->
+                <div class="flex flex-col items-center justify-center bg-slate-200 rounded-lg p-4 aspect-video">
+                  @if(vehicleImageUrl(); as url) {
+                    <img [src]="url" [alt]="'Imagem de ' + details.brand + ' ' + details.model" class="rounded-lg shadow-lg object-cover w-full h-full">
+                  } @else {
+                    <div class="w-full h-full bg-slate-300 animate-pulse rounded-lg flex items-center justify-center">
+                      <p class="text-slate-500">Gerando imagem...</p>
+                    </div>
+                  }
+                </div>
+                <!-- Details Column -->
+                <div class="flex flex-col justify-center">
+                  <h3 class="text-2xl font-bold text-slate-800">{{ details.brand }} {{ details.model }}</h3>
+                  <p class="text-lg text-slate-600">{{ details.modelYear }} - {{ details.fuel }}</p>
+                  <div class="mt-6 bg-purple-600 text-white rounded-lg p-6 text-center shadow-lg">
+                    <span class="text-sm uppercase font-semibold tracking-wider opacity-80">Valor FIPE</span>
+                    <p class="text-4xl font-bold tracking-tight">{{ details.price }}</p>
+                    <span class="text-xs text-purple-200">Ref: {{ details.referenceMonth }}</span>
+                  </div>
+                  <!-- <p class="text-xs text-slate-400 mt-4 text-center">Código FIPE: {{ details.fipeCode }}</p> -->
+                </div>
+              </div>
+
+              <!-- Vehicle Listings Section -->
+              <div class="mt-8 pt-6 border-t border-slate-200">
+                @switch (listingsStatus()) {
+                  @case ('loading') {
+                    <div class="text-center text-slate-500 flex items-center justify-center">
+                      <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Buscando anúncios online...</span>
+                    </div>
+                  }
+                  @case ('success') {
+                    <h4 class="text-xl font-bold text-slate-700 mb-4">Anúncios Encontrados</h4>
+                    @if (listings().length > 0) {
+                      <ul class="space-y-3">
+                        @for (item of listings(); track item.web.uri) {
+                          <li class="bg-white p-3 rounded-md shadow-sm border border-slate-200 hover:border-purple-300 transition-all">
+                            <a [href]="item.web.uri" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-3">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                              </svg>
+                              <div>
+                                <span class="font-medium text-purple-700 group-hover:underline">{{ item.web.title }}</span>
+                                <span class="block text-xs text-slate-500">{{ getDomain(item.web.uri) }}</span>
+                              </div>
+                            </a>
+                          </li>
+                        }
+                      </ul>
+                    } @else {
+                      <p class="text-slate-500 text-center py-4">Nenhum anúncio encontrado para este modelo.</p>
+                    }
+                  }
+                  @case ('error') {
+                    <p class="text-red-600 text-center bg-red-50 p-4 rounded-md">Ocorreu um erro ao buscar os anúncios.</p>
+                  }
+                }
+              </div>
+            }
+          </div>
+        }
+        @case ('loading') {
+          <!-- This case is handled by the button's loading state -->
+        }
+      }
+    </div>
+
+  </div>
+</main>
