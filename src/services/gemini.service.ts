@@ -20,7 +20,7 @@ export class GeminiService {
   }
 
   async generateVehicleImage(vehicle: VehicleDetails): Promise<string | null> {
-    const prompt = `Uma foto de estúdio, de alta qualidade e realista de um ${vehicle.brand} ${vehicle.model} ano ${vehicle.modelYear}, cor prata. Fundo neutro e limpo.`;
+    const prompt = `Uma foto de estúdio, de alta qualidade e realista de um ${vehicle.brand} ${vehicle.model} ano ${vehicle.modelYear}, cor Vermelha. Fundo neutro e limpo.`;
 
     try {
       const response = await this.ai.models.generateImages({
