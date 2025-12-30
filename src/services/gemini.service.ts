@@ -11,12 +11,12 @@ export class GeminiService {
   constructor() {
     // This is the required way to initialize the API client.
     // The API key is sourced from a pre-configured environment variable.
-    // Do not add any UI or code to request the key from the user.
-    if (!process.env.API_KEY) {
-      console.error("API_KEY environment variable not set.");
-      throw new Error("API_KEY environment variable not set.");
+    // Vercel requires the NEXT_PUBLIC_ prefix to expose the variable to the browser.
+    if (!process.env.NEXT_PUBLIC_API_KEY) {
+      console.error("NEXT_PUBLIC_API_KEY environment variable not set.");
+      throw new Error("NEXT_PUBLIC_API_KEY environment variable not set.");
     }
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    this.ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_API_KEY });
   }
 
   async generateVehicleImage(vehicle: VehicleDetails): Promise<string | null> {
