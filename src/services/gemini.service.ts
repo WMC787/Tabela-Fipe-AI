@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { GoogleGenAI } from "@google/genai";
 import { VehicleDetails } from '../models/fipe.model';
+import { GEMINI_API_KEY } from '../api.config';
 
 @Injectable({
   providedIn: 'root'
@@ -9,14 +10,13 @@ export class GeminiService {
   private ai: GoogleGenAI;
 
   constructor() {
-    // This is the required way to initialize the API client.
-    // The API key is sourced from a pre-configured environment variable.
-    // Vercel requires the NEXT_PUBLIC_ prefix to expose the variable to the browser.
-    if (!process.env.NEXT_PUBLIC_API_KEY) {
-      console.error("NEXT_PUBLIC_API_KEY environment variable not set.");
-      throw new Error("NEXT_PUBLIC_API_KEY environment variable not set.");
+    // Read the key from the dedicated config file.
+    if (!GEMINI_API_KEY) {
+      const errorMessage = "A chave da API do Gemini não foi configurada. Por favor, adicione sua chave no arquivo 'src/api.config.ts'.";
+      console.error(errorMessage);
+      throw new Error(errorMessage);
     }
-    this.ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_API_KEY });
+    this.ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
   }
 
   async generateVehicleImage(vehicle: VehicleDetails): Promise<string | null> {
